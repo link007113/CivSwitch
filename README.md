@@ -9,7 +9,7 @@ Tested at Switch 1 fw 22.5.0, Switch 2 fw 20.4.0 and 23.0.1
 
 Two components:
 
-- **PicoSwitch** — clean, compilable Pico firmware (RP2040 + RP2350) that types a chat-XSS payload into the Switch (USB HID macro).
+- **PicoSwitch** — clean, compilable Pico firmware (Pico 1, Pico 2 and Pico 2 W) that types a chat-XSS payload into the Switch (USB HID macro).
 
   Default payload = the Remote JS Loader bootstrap (exploit core + TCP loader).
 
@@ -65,6 +65,7 @@ cd PicoSwitch
 npm install                    # terser for compress.js
 node compress.js               # reads ../core.js -> payload.txt
 cmake --preset pico2 && cmake --build --preset pico2    # RP2350 -> build-pico2/src/civ7-pico2.uf2
+cmake --preset pico2-w && cmake --build --preset pico2-w # Pico 2 W -> build-pico2-w/src/civ7-pico2-w.uf2
 cmake --preset pico1 && cmake --build --preset pico1    # RP2040 -> build-pico1/src/civ7-pico1.uf2
 ```
 

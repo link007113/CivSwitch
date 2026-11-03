@@ -13,5 +13,5 @@ add_custom_command(
 )
 
 add_library(macro MacroEngine.cpp ${MACRO_SCRIPT})
-target_link_libraries(macro pico_stdlib hardware_pio tinyusb_device)
+target_link_libraries(macro pico_stdlib hardware_pio tinyusb_device boardLed)
 target_include_directories(macro PUBLIC ${PROJECT_SOURCE_DIR}/include)

@@ -1,0 +1,5 @@
+PicoSwitch/build*/
+PicoSwitch/node_modules/
+PicoSwitch/payload.txt
+PicoSwitch/include/macro_script.h
+__pycache__/

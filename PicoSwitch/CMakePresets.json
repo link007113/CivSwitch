@@ -24,6 +24,15 @@
       }
     },
     {
+      "name": "pico2-w",
+      "inherits": "base",
+      "binaryDir": "build-pico2-w",
+      "cacheVariables": {
+        "PICO_BOARD": "pico2_w",
+        "CIV7_TARGET_NAME": "civ7-pico2-w"
+      }
+    },
+    {
       "name": "pico1",
       "inherits": "base",
       "binaryDir": "build-pico1",
@@ -34,6 +43,10 @@
     }
   ],
   "buildPresets": [
+    {
+      "name": "pico2-w",
+      "configurePreset": "pico2-w"
+    },
     {
       "name": "pico2",
       "configurePreset": "pico2"

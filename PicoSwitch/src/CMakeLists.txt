@@ -2,6 +2,13 @@
 # CONTROLLER_TYPE: "Gamecube", "N64", "Switch" or "Macro" (default Macro)
 # SWITCH_BLUETOOTH: Remove for USB
 add_compile_definitions(CONTROLLER_TYPE=\"Macro\")
+add_library(boardLed BoardLed.cpp)
+target_include_directories(boardLed PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(boardLed pico_stdlib)
+if(PICO_CYW43_SUPPORTED)
+    target_link_libraries(boardLed pico_cyw43_arch_none)
+endif()
+
 add_subdirectory(otherController)
 add_subdirectory(switchController)
 add_subdirectory(macro)
@@ -17,7 +24,7 @@ pico_enable_stdio_uart(${CIV7_TARGET_NAME} 1)
 set(PICO_NO_UF2 1)
 pico_add_extra_outputs(${CIV7_TARGET_NAME})
 
-if(PICO_BOARD STREQUAL "pico2")
+if(PICO_RP2350)
     set(CIV7_UF2_FAMILY rp2350)
 else()
     set(CIV7_UF2_FAMILY rp2040)
