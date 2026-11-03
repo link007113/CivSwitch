@@ -18,6 +18,10 @@ Two components:
 
 ## Layout
 
+**Flipper Zero:** [FlipperSwitch](FlipperSwitch/README.md) provides a native
+composite controller + keyboard app with SD-streamed macro playback.
+Build-tested; physical Switch acceptance is still pending.
+
 `core.js` at the root is the shared payload both components build from, and `send_js.py` at the root sends any payload to a running loader.
 
 ## Workflow
