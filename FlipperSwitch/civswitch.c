@@ -100,8 +100,14 @@ static int32_t playback(void* context) {
         result = "USB busy; close other app";
         goto cleanup;
     }
-    while(!civ_usb_connected() && !civ_usb_lost() && !app->cancel)
+    uint32_t wait_start = furi_get_tick();
+    while(!civ_usb_connected() && !civ_usb_lost() && !app->cancel) {
+        if(furi_get_tick() - wait_start >= furi_ms_to_ticks(30000)) {
+            result = "USB timeout; check cable";
+            goto usb_cleanup;
+        }
         furi_delay_ms(20);
+    }
     if(app->cancel) goto usb_cleanup;
     if(civ_usb_lost()) {
         result = "USB lost; start again";
@@ -148,7 +154,7 @@ static void draw(Canvas* canvas, void* context) {
     furi_mutex_acquire(app->mutex, FuriWaitForever);
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 11, "CivSwitch USB");
+    canvas_draw_str(canvas, 2, 11, "CivSwitch USB 0.2");
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 2, 25, app->status);
     if(app->total) {

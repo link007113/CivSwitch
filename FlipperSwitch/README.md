@@ -6,11 +6,13 @@ streams a compiled macro from the SD card, retaining the original A presses,
 US keyboard reports and minimum hold/gap timings. No Pico, GPIO module or
 custom firmware is required by the source API.
 
-**Status:** builds with official firmware SDK **1.5.1**, target **f7**, API
-**88.2**. Automated tests compare every timed report against the Pico generator.
-Physical Flipper loading, USB enumeration on a Switch and a complete Civ7 run
-have **not** been verified. A firmware with another API may require rebuilding
-with its SDK. Do not treat a successful build as a successful console test.
+**Status:** version **0.2** builds with official firmware SDK **1.5.1**, target
+**f7**, API **88.2**. Version 0.1 loaded on the user's Flipper but stalled at USB
+enumeration: it advertised the Pico's 64-byte EP0 while the Flipper HAL uses
+8-byte control packets. Version 0.2 fixes that mismatch and binds the descriptor
+to the running firmware's actual EP0 size. Switch enumeration and a complete
+Civ7 run still require a physical retest. A firmware with another API may
+require rebuilding with its SDK.
 
 ## Install and use
 
@@ -30,6 +32,7 @@ Copy these files onto the Flipper SD card using qFlipper or a card reader:
 3. On the Flipper, open **Apps -> USB -> CivSwitch**, then press **OK**.
    After checking the complete SD file, the app waits for enumeration, waits
    one second and starts the five A presses followed by the typed batches.
+   If the host does not configure USB within 30 seconds, it stops with a timeout.
 4. Leave the game and cable alone while typing. The default payload contains
    87 lines; nominal macro time is about 16.5 minutes, plus SD/USB overhead.
    The screen displays line progress and report percentage.
@@ -69,10 +72,12 @@ dropping characters. Blank lines are ignored as in PicoSwitch.
 If PicoSwitch descriptors change, run `python FlipperSwitch/tools/sync_descriptors.py`
 from the repo root and rebuild. Its report descriptors, USB IDs, interface
 ordering and endpoint addresses are copied verbatim.
+The device descriptor's control endpoint packet size is adapted to the Flipper
+HAL; it must not retain the Pico's 64-byte value.
 
 ## Hardware acceptance still needed
 
-- Load the app on the installed firmware without missing-symbol/API errors.
+- Load version 0.2 on the installed firmware without missing-symbol/API errors.
 - Confirm controller + keyboard enumeration on the Switch, and the five A taps.
 - Run a short harmless chat payload and verify capitalization, punctuation and
   repeated characters. Example source text: `CivSwitch test AaA aa 11 !! [] {} ?`.

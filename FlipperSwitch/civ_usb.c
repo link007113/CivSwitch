@@ -146,8 +146,11 @@ static usbd_respond control(usbd_device* dev, usbd_ctlreq* req, usbd_rqc_callbac
 }
 
 static void init(usbd_device* dev, FuriHalUsbInterface* intf, void* context) {
-    UNUSED(intf);
     UNUSED(context);
+    // The host must see the same EP0 packet size the HAL actually transmits.
+    // Advertising the Pico's 64 bytes with Flipper's 8-byte EP0 truncates
+    // descriptor reads at the host and prevents SET_CONFIGURATION entirely.
+    intf->dev_descr->bMaxPacketSize0 = dev->status.ep0size;
     device = dev;
     usbd_reg_config(dev, configure);
     usbd_reg_control(dev, control);
