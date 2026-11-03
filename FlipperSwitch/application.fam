@@ -5,7 +5,7 @@ App(
     entry_point="civswitch_app",
     requires=["gui", "storage"],
     stack_size=4096,
-    fap_version="0.1",
+    fap_version="0.2",
     fap_category="USB",
     fap_author="CivSwitch contributors",
     fap_description="PicoSwitch composite USB keyboard and Switch controller macro",

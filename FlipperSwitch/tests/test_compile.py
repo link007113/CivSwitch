@@ -93,7 +93,10 @@ class CompileTests(unittest.TestCase):
 
         for name in ['switch_usb_device_descriptor', 'switch_usb_configuration_descriptor',
                      'switch_usb_report_descriptor', 'keyboard_usb_report_descriptor']:
-            self.assertEqual(descriptor(source, name), descriptor(port, name), name)
+            expected = bytearray(descriptor(source, name))
+            if name == 'switch_usb_device_descriptor':
+                expected[7] = 8  # Flipper HAL control endpoint, not the Pico's 64.
+            self.assertEqual(bytes(expected), descriptor(port, name), name)
         config = descriptor(port, 'switch_usb_configuration_descriptor')
         self.assertEqual(struct.unpack_from('<H', config, 2)[0], len(config))
         self.assertEqual(config[4], 2)
@@ -109,6 +112,24 @@ class CompileTests(unittest.TestCase):
         self.assertEqual(offset, len(config))
         self.assertEqual(endpoints, [0x02, 0x81, 0x83, 0x03])
         self.assertEqual(report_lengths, [86, 63])
+
+    def test_device_control_packets_match_flipper_driver(self):
+        import re
+        text = (ROOT / 'FlipperSwitch/civ_descriptors.h').read_text(encoding='utf-8')
+        body = re.search(r'switch_usb_device_descriptor\[\] = \{(.*?)\};', text, re.S).group(1)
+        device = bytes(int(x.strip(), 0) for x in body.split(',') if x.strip())
+        # Official f7 HAL initializes EP0 with USB_EP0_SIZE=8. Advertising the
+        # Pico's 64 makes the first 8-byte reply look like a short packet: the
+        # host stops reading the 18-byte device / 73-byte configuration early.
+        self.assertEqual(device[7], 8)
+        config = bytes(73)
+        received = bytearray()
+        for offset in range(0, len(config), 8):
+            packet = config[offset:offset + 8]
+            received.extend(packet)
+            if len(packet) < device[7]:
+                break
+        self.assertEqual(len(received), 73)
 
 
 if __name__ == '__main__':

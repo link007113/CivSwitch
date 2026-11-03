@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Copy the four USB descriptors verbatim from PicoSwitch (MIT licensed)."""
+"""Copy PicoSwitch USB descriptors, adapting EP0 to the Flipper HAL."""
 from pathlib import Path
 import re
 
@@ -13,6 +13,10 @@ for name in ['switch_usb_device_descriptor', 'switch_usb_configuration_descripto
     body = re.search(r'static const uint8_t ' + name + r'\[\] = \{(.*?)\};', source, re.S).group(1)
     body = re.sub(r'//[^\n]*', '', body)
     values = [int(v.strip(), 0) for v in body.split(',') if v.strip()]
+    if name == 'switch_usb_device_descriptor':
+        # f7 uses an 8-byte control endpoint, unlike TinyUSB on the Pico.
+        # init() also binds this field to the running firmware's ep0size.
+        values[7] = 8
     out.append(f'static uint8_t {name}[] = {{')
     for i in range(0, len(values), 12):
         out.append('    ' + ', '.join(f'0x{v:02x}' for v in values[i:i+12]) + ',')
