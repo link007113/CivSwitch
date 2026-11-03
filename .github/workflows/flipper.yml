@@ -1,0 +1,26 @@
+name: Flipper Zero
+on:
+  push:
+    paths: ['FlipperSwitch/**', 'PicoSwitch/**', 'core.js', '.github/workflows/flipper.yml']
+  pull_request:
+    paths: ['FlipperSwitch/**', 'PicoSwitch/**', 'core.js', '.github/workflows/flipper.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install ufbt==0.2.6
+      - run: python -m unittest discover -s FlipperSwitch/tests -v
+      - run: cc -std=c11 -Wall -Wextra -Werror FlipperSwitch/tests/test_format.c -o /tmp/civ-format-test && /tmp/civ-format-test
+      - run: python FlipperSwitch/tools/sync_descriptors.py && git diff --exit-code FlipperSwitch/civ_descriptors.h
+      - run: ufbt update --channel=release
+      - run: ufbt
+        working-directory: FlipperSwitch
